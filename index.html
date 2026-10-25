@@ -121,6 +121,10 @@ pre{white-space:pre-wrap;font:13px/1.5 ui-monospace,Menlo,monospace;background:#
    Вставьте сюда URL веб-приложения Apps Script (…/exec).
    Пока строка пустая — тест работает в демо-режиме и никуда не отправляет. */
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzdVvREU5USvZGMSmQt35NVSLSbwPb6dokQkE2miPaBk_ZM0Ec1E48Q2ihs_K0bbqFGQg/exec';
+/* Код занятия: false — поле не показывается, всем подставляется ОБЩИЙ_КОД.
+   Чтобы снова спрашивать код у учеников — поставьте true. */
+const CODE_REQUIRED = false;
+const COMMON_CODE = '1111';
 /* =================================== */
 
 const SECTIONS = ['Основы', 'Стрижки', 'Колористика'];
@@ -245,7 +249,8 @@ let S = null, inTest = false;
 function show(id) { ['#s-start','#s-test','#s-result'].forEach(x => $(x).classList.toggle('hide', x !== id)); window.scrollTo(0, 0); }
 function msg(t, cls) { const m = $('#start-msg'); m.textContent = t || ''; m.className = 'msg ' + (cls || ''); }
 
-if (!SCRIPT_URL) { $('#code-wrap').classList.add('hide'); msg('Демо-режим: результаты не отправляются преподавателю.', 'warn'); }
+if (!SCRIPT_URL || !CODE_REQUIRED) $('#code-wrap').classList.add('hide');
+if (!SCRIPT_URL) { msg('Демо-режим: результаты не отправляются преподавателю.', 'warn'); }
 
 async function api(params) {
   const r = await fetch(SCRIPT_URL + '?' + new URLSearchParams(params));
@@ -258,7 +263,7 @@ async function post(payload) {
 
 $('#b-start').onclick = async () => {
   const last = $('#f-last').value.trim(), first = $('#f-first').value.trim();
-  const group = $('#f-group').value.trim(), code = $('#f-code').value.trim().toUpperCase();
+  const group = $('#f-group').value.trim(), code = CODE_REQUIRED ? $('#f-code').value.trim().toUpperCase() : COMMON_CODE;
   if (!last || !first) { msg('Введите фамилию и имя.', 'err'); return; }
   if (SCRIPT_URL && !code) { msg('Введите код занятия от преподавателя.', 'err'); $('#f-code').focus(); return; }
   const student = last + ' ' + first;
@@ -269,7 +274,7 @@ $('#b-start').onclick = async () => {
       const r = await api({ action: 'check', code, student });
       if (!r.ok) {
         $('#b-start').disabled = false;
-        msg(r.reason === 'closed' ? 'Приём по этому коду закрыт.' : 'Код не найден. Проверьте у преподавателя.', 'err');
+        msg(!CODE_REQUIRED ? 'Тест сейчас закрыт преподавателем.' : r.reason === 'closed' ? 'Приём по этому коду закрыт.' : 'Код не найден. Проверьте у преподавателя.', 'err');
         return;
       }
       attempts = r.attempts;
@@ -325,7 +330,7 @@ function finish() {
 
   const lines = [
     'ИТОГИ ТЕСТА — Академия Льва Кравца',
-    `Ученик: ${S.student}${S.group ? ' · Группа: ' + S.group : ''}${S.code ? ' · Код: ' + S.code : ''}`,
+    `Ученик: ${S.student}${S.group ? ' · Группа: ' + S.group : ''}${S.code && CODE_REQUIRED ? ' · Код: ' + S.code : ''}`,
     `Дата: ${date} · Время прохождения: ${minutes} мин`,
     `Результат: ${correct} из ${Q.length} (${percent}%) — оценка «${grade}»`,
     'По разделам: ' + SECTIONS.map((n, i) => `${n} ${sec[i].ok}/${sec[i].n} (${secP[i]}%)`).join(' · '),

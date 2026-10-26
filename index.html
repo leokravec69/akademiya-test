@@ -252,6 +252,28 @@ function msg(t, cls) { const m = $('#start-msg'); m.textContent = t || ''; m.cla
 if (!SCRIPT_URL || !CODE_REQUIRED) $('#code-wrap').classList.add('hide');
 if (!SCRIPT_URL) { msg('Демо-режим: результаты не отправляются преподавателю.', 'warn'); }
 
+/* ---- журнал посещений ---- */
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+function visitorId() {
+  let v = lsGet('lk_vid');
+  if (!v) { v = Math.random().toString(36).slice(2, 8).toUpperCase(); lsSet('lk_vid', v); }
+  return v;
+}
+function device() {
+  const u = navigator.userAgent || '';
+  const kind = /iPad|Tablet/i.test(u) ? 'планшет' : /Mobi|Android|iPhone/i.test(u) ? 'телефон' : 'компьютер';
+  const os = /iPhone|iPad/.test(u) ? 'iOS' : /Android/.test(u) ? 'Android' : /Mac OS/.test(u) ? 'Mac' : /Windows/.test(u) ? 'Windows' : '';
+  return kind + (os ? ' · ' + os : '');
+}
+function track(event, student, group, note) {
+  if (!SCRIPT_URL) return;
+  const body = JSON.stringify({ type: 'visit', event, student: student || '', group: group || '',
+    known: lsGet('lk_last_name') || '', device: device(), vid: visitorId(), note: note || '' });
+  fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body }).catch(() => {});
+}
+track('открыл страницу');
+
 async function api(params) {
   const r = await fetch(SCRIPT_URL + '?' + new URLSearchParams(params));
   return r.json();
@@ -287,6 +309,8 @@ $('#b-start').onclick = async () => {
   const opts = Q.map(q => shuffle(q.o.map((_, i) => i)));
   S = { student, group, code, order, opts, ans: Array(Q.length).fill(null), cur: 0, t0: Date.now(), attemptsBefore: attempts };
   inTest = true; msg(''); show('#s-test'); renderQ();
+  lsSet('lk_last_name', student);
+  track('начал тест', student, group);
 };
 
 function renderQ() {

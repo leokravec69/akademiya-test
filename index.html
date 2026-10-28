@@ -30,6 +30,7 @@ input:focus{outline:2px solid var(--accent);border-color:transparent}
 .actions{display:flex;gap:10px;justify-content:space-between;margin-top:20px;flex-wrap:wrap}
 .msg{margin-top:12px;font-size:14px;min-height:1.2em}
 .msg.err{color:var(--bad)} .msg.ok{color:var(--ok)} .msg.warn{color:var(--warn)}
+.ym-note{font-size:12px;color:var(--muted);text-align:center;margin:14px 0 4px}
 .rules{background:#f3ece0;border-radius:12px;padding:12px 14px;font-size:14px;color:var(--muted);margin-top:18px}
 .rules b{color:var(--ink)}
 .top{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:8px}
@@ -55,6 +56,16 @@ pre{white-space:pre-wrap;font:13px/1.5 ui-monospace,Menlo,monospace;background:#
 .hide{display:none}
 @media print{.noprint{display:none!important} body{background:#fff} .card{border:0;box-shadow:none}}
 </style>
+<!-- Yandex.Metrika counter -->
+<script>
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+m[i].l=1*new Date();for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}
+k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");
+ym(113842158,"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/113842158" style="position:absolute;left:-9999px;" alt=""></div></noscript>
+<!-- /Yandex.Metrika counter -->
 </head>
 <body>
 <div class="wrap">
@@ -68,12 +79,12 @@ pre{white-space:pre-wrap;font:13px/1.5 ui-monospace,Menlo,monospace;background:#
     <h2>Итоговый тест</h2>
     <p class="lead">50 вопросов по урокам курса. Один правильный ответ в каждом вопросе.</p>
     <div class="row">
-      <div><label for="f-last">Фамилия</label><input id="f-last" autocomplete="family-name"></div>
-      <div><label for="f-first">Имя</label><input id="f-first" autocomplete="given-name"></div>
+      <div><label for="f-last">Фамилия</label><input id="f-last" class="ym-hide-content ym-disable-keys" autocomplete="family-name"></div>
+      <div><label for="f-first">Имя</label><input id="f-first" class="ym-hide-content ym-disable-keys" autocomplete="given-name"></div>
     </div>
     <div class="row">
-      <div><label for="f-group">Группа / поток <span style="font-weight:400;color:var(--muted)">(необязательно)</span></label><input id="f-group"></div>
-      <div id="code-wrap"><label for="f-code">Код занятия</label><input id="f-code" autocapitalize="characters" placeholder="от преподавателя"></div>
+      <div><label for="f-group">Группа / поток <span style="font-weight:400;color:var(--muted)">(необязательно)</span></label><input id="f-group" class="ym-hide-content ym-disable-keys"></div>
+      <div id="code-wrap"><label for="f-code">Код занятия</label><input id="f-code" class="ym-hide-content ym-disable-keys" autocapitalize="characters" placeholder="от преподавателя"></div>
     </div>
     <div class="rules">
       <b>Как проходит тест.</b> Вопросы и варианты перемешаны. Между вопросами можно возвращаться назад. После кнопки «Сдать» ответы уходят преподавателю и больше не меняются. Правильные ответы разбираются с преподавателем.<br>
@@ -97,8 +108,8 @@ pre{white-space:pre-wrap;font:13px/1.5 ui-monospace,Menlo,monospace;background:#
 
   <!-- ИТОГ -->
   <section id="s-result" class="card hide">
-    <h2 id="r-name"></h2>
-    <p class="lead" id="r-meta"></p>
+    <h2 id="r-name" class="ym-hide-content"></h2>
+    <p class="lead ym-hide-content" id="r-meta"></p>
     <div class="grade"><div class="stamp" id="r-grade"></div><div><div class="big" id="r-score"></div><div style="color:var(--muted)" id="r-pct"></div></div></div>
     <div id="r-secs"></div>
     <div class="status" id="r-status"></div>
@@ -107,13 +118,14 @@ pre{white-space:pre-wrap;font:13px/1.5 ui-monospace,Menlo,monospace;background:#
       <p style="margin:0;color:var(--muted);font-size:14px">Правильные ответы разберём на встрече с преподавателем.</p>
       <ol class="topics" id="r-topics"></ol>
     </div>
-    <details id="r-demo" class="hide"><summary>Отчёт, который получит преподаватель</summary><pre id="r-report"></pre></details>
+    <details id="r-demo" class="hide"><summary>Отчёт, который получит преподаватель</summary><pre id="r-report" class="ym-hide-content"></pre></details>
     <div class="actions noprint">
       <button class="btn ghost" id="b-pdf">Скачать результат (PDF)</button>
       <button class="btn ghost" id="b-print">Распечатать</button>
       <button class="btn" id="b-again">Пройти ещё раз</button>
     </div>
   </section>
+  <p class="ym-note noprint">На странице работает Яндекс Метрика: собираем обезличенную статистику посещений, чтобы улучшать тест. Имена и ответы в неё не передаются.</p>
 </div>
 
 <script>
@@ -244,6 +256,8 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const gradeOf = p => p >= 90 ? 5 : p >= 75 ? 4 : p >= 60 ? 3 : 2;
 const PENDING = 'lk_test_pending';
+const YM_ID = 113842158;
+function goal(name, params) { try { if (window.ym) ym(YM_ID, 'reachGoal', name, params || {}); } catch (e) {} }
 let S = null, inTest = false;
 
 function show(id) { ['#s-start','#s-test','#s-result'].forEach(x => $(x).classList.toggle('hide', x !== id)); window.scrollTo(0, 0); }
@@ -311,6 +325,7 @@ $('#b-start').onclick = async () => {
   inTest = true; msg(''); show('#s-test'); renderQ();
   lsSet('lk_last_name', student);
   track('начал тест', student, group);
+  goal('test_start');
 };
 
 function renderQ() {
@@ -385,6 +400,7 @@ function finish() {
   $('#r-demo').classList.toggle('hide', !!SCRIPT_URL);
   pdfName = ('Результат_' + S.student + '_' + new Date().toLocaleDateString('ru-RU')).replace(/[\s\/\\:]+/g, '_');
   show('#s-result');
+  goal('test_finish', { grade: grade, percent: percent, minutes: minutes });
   send(payload);
 }
 
@@ -397,6 +413,7 @@ async function send(payload) {
   status('Отправляю результат преподавателю…', 'warn');
   try {
     const r = await post(payload);
+    if (r.ok) { goal('result_sent'); }
     if (r.ok) status(`Отправлено преподавателю. Это ваша попытка №${r.attempt}.`, 'ok');
     else status(r.reason === 'closed' ? 'Приём по этому коду закрыт — покажите этот экран преподавателю.' : 'Таблица не приняла результат — покажите этот экран преподавателю.', 'err');
   } catch (e) {
@@ -414,7 +431,7 @@ async function resendPending() {
 }
 resendPending();
 
-$('#b-print').onclick = () => window.print();
+$('#b-print').onclick = () => { goal('print'); window.print(); };
 
 /* Скачивание PDF одной кнопкой (библиотека html2pdf подгружается только при нажатии) */
 let pdfName = 'Результат_теста';
@@ -429,6 +446,7 @@ function loadPdfLib() {
 $('#b-pdf').onclick = async () => {
   const b = $('#b-pdf'), label = b.textContent;
   b.disabled = true; b.textContent = 'Готовлю файл…';
+  goal('pdf_download');
   try {
     await loadPdfLib();
     await html2pdf().set({
@@ -444,7 +462,7 @@ $('#b-pdf').onclick = async () => {
   }
   b.disabled = false; b.textContent = label;
 };
-$('#b-again').onclick = () => { S = null; show('#s-start'); };
+$('#b-again').onclick = () => { goal('test_again'); S = null; show('#s-start'); };
 window.addEventListener('beforeunload', e => { if (inTest) { e.preventDefault(); e.returnValue = ''; } });
 </script>
 </body>
